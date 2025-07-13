@@ -1,0 +1,36 @@
+---
+- name: Installa step-cli su Debian
+  hosts: all
+  become: true
+  tasks:
+    - name: Installa pacchetti base richiesti
+      apt:
+        name:
+          - curl
+          - vim
+          - gpg
+          - ca-certificates
+        state: present
+        update_cache: true
+
+    - name: Scarica GPG key per il repository Smallstep
+      ansible.builtin.get_url:
+        url: https://packages.smallstep.com/keys/apt/repo-signing-key.gpg
+        dest: /etc/apt/trusted.gpg.d/smallstep.asc
+        mode: '0644'
+
+    - name: Aggiungi repository Smallstep alla sources.list
+      copy:
+        dest: /etc/apt/sources.list.d/smallstep.list
+        content: |
+          deb [signed-by=/etc/apt/trusted.gpg.d/smallstep.asc] https://packages.smallstep.com/stable/debian debs main
+        mode: '0644'
+
+    - name: Aggiorna la cache APT
+      apt:
+        update_cache: true
+
+    - name: Installa step-cli
+      apt:
+        name: step-cli
+        state: present
