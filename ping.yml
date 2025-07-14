@@ -1,0 +1,8 @@
+---
+- name: Test di connessione con modulo ping
+  hosts: all
+  gather_facts: false
+
+  tasks:
+    - name: Eseguo ping verso gli host target
+      ansible.builtin.ping:
