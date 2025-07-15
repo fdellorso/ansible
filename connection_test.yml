@@ -1,0 +1,10 @@
+- name: Test connessione API server
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Test connessione verso API server
+      ansible.builtin.uri:
+        url: https://10.43.0.1:443
+        validate_certs: no
+        return_content: yes
