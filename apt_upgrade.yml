@@ -1,15 +1,46 @@
 ---
-- name: Aggiorna pacchetti su sistemi Debian/Ubuntu
+- name: Aggiorna pacchetti con apt upgrade
   hosts: all
   become: true
   gather_facts: false
 
   tasks:
-    - name: Aggiorna la cache APT
+    - name: Mostra host corrente
+      ansible.builtin.debug:
+        msg: "➡️  Avvio aggiornamento su {{ inventory_hostname }}"
+
+    - name: Esegui apt update
       ansible.builtin.apt:
         update_cache: yes
-        cache_valid_time: 3600  # 1 ora
+      register: apt_update_result
+      ignore_errors: true
+
+    - name: Log risultato update
+      ansible.builtin.debug:
+        msg: |
+          ✅ UPDATE completato su {{ inventory_hostname }}
+          Pacchetti aggiornati: {{ apt_update_result.cache_update_time | default('N/A') }}
+      when: not apt_update_result.failed
+
+    - name: Log errore update
+      ansible.builtin.debug:
+        msg: "❌ Errore durante apt update su {{ inventory_hostname }}: {{ apt_update_result.msg }}"
+      when: apt_update_result.failed
 
     - name: Esegui upgrade dei pacchetti
       ansible.builtin.apt:
         upgrade: yes
+      register: apt_upgrade_result
+      ignore_errors: true
+
+    - name: Log risultato upgrade
+      ansible.builtin.debug:
+        msg: |
+          ✅ UPGRADE completato su {{ inventory_hostname }}
+          Pacchetti aggiornati: {{ apt_upgrade_result.stdout_lines | default([]) }}
+      when: not apt_upgrade_result.failed
+
+    - name: Log errore upgrade
+      ansible.builtin.debug:
+        msg: "❌ Errore durante apt upgrade su {{ inventory_hostname }}: {{ apt_upgrade_result.msg }}"
+      when: apt_upgrade_result.failed
