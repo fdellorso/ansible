@@ -1,0 +1,15 @@
+---
+- name: Aggiorna pacchetti su sistemi Debian/Ubuntu
+  hosts: all
+  become: true
+  gather_facts: false
+
+  tasks:
+    - name: Aggiorna la cache APT
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600  # 1 ora
+
+    - name: Esegui upgrade dei pacchetti
+      ansible.builtin.apt:
+        upgrade: yes
